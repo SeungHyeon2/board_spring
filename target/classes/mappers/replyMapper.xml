@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.board.mappers.reply">
+
+<!-- 댓글 조회 -->
+<select id="replyList" parameterType="int" resultType="com.board.domain.ReplyVO">
+	select
+		rno, bno, writer, content, regDate, ref, step, level
+	from board.tbl_reply
+		where bno = #{bno}		
+	order by ref ASC, level ASC, step ASC
+</select>
+
+<!-- 댓글 작성 -->
+<insert id="replyWrite" parameterType="com.board.domain.ReplyVO">
+	insert into board.tbl_reply(bno, writer, content, regDate, ref, step, level)
+		value(#{bno}, #{writer}, #{content}, #{regDate}, (SELECT IFNULL(MAX(b.ref)+1,1) FROM board.tbl_reply b WHERE bno=#{bno}), 0, 0)
+</insert>
+
+<!-- test용 대댓글 insert
+<insert id="replyReWrite" parameterType="com.board.domain.ReplyVO">
+	insert into board.tbl_reply(bno, writer, content, regDate, ref, step, level)
+		value(#{bno}, #{writer}, #{content}, #{regDate}, (SELECT IFNULL(MAX(b.ref)+1 ,1) FROM board.tbl_reply b WHERE bno=#{bno}), 0, 0)
+</insert>
+ -->
+ 
+<!-- test용 대댓글 insert -->
+<insert id="replyReWrite" parameterType="com.board.domain.ReplyVO">
+	insert into board.tbl_reply(bno, writer, content, regDate, ref, step, level)
+		value(#{bno}, #{writer}, #{content}, #{regDate}, #{ref}, 
+		(SELECT IFNULL(MAX(step)+1, 0) FROM board.tbl_reply b WHERE bno=#{bno} and ref=#{ref}),
+		(SELECT IF(TRUE, #{level}+1, 9999) FROM board.tbl_reply c WHERE bno=#{bno} and ref=#{ref} and level=#{level}) <!-- 이 줄에 현재 level+1의 값을 넣어주는 select쿼리가 와야한다 -->
+		)
+</insert>
+
+
+<!-- 대댓글 작성
+<insert id="replyreWrite" parameterType="com.board.domain.ReplyVO">
+ 	
+	<selectKey keyProperty="ref" resultType="int" order = "BEFORE">
+ 		select * from (select ifnull(max(ref),0) from board.tbl_reply) next
+ 	</selectKey>
+	insert into board.tbl_reply(bno, writer, content, regDate, ref, step, level)
+	value(#{bno}, #{writer}, #{content}, #{regDate}, (SELECT IFNULL(MAX(b.ref)+1,1) FROM board.tbl_reply b WHERE bno=#{bno}), 
+	(SELECT IFNULL(MAX(step)+1, 0) FROM board.tbl_reply b WHERE bno=#{bno} AND ref=#{ref}), 0)
+
+</insert> -->
+	
+<!-- 대댓글 업데이트 -->
+<update id="replyreModify" parameterType="com.board.domain.ReplyVO">
+	update
+		board.tbl_reply
+	set
+		writer = #{writer},
+		content = #{content}
+	where 
+		rno = #{rno}
+		and bno = #{bno}
+</update>
+	
+<!-- 댓글 수정 -->
+<update id="replyModify" parameterType="com.board.domain.ReplyVO">
+	update board.tbl_reply 
+	set
+		writer = #{writer},
+		content = #{content}
+	where rno = #{rno}
+		and bno = #{bno}	
+</update>
+
+<!-- 댓글 삭제 -->
+<delete id="replyDelete" parameterType="com.board.domain.ReplyVO">
+	delete from board.tbl_reply
+	where rno = #{rno}
+		and bno = ${bno}	
+</delete>
+
+<!-- 원래 id : selectBoard6ReplyParent
+<select id="replyParent" resultType="com.board.domain.ReplyVO" parameterType="String">
+	select bno, depth+1 depth, step
+	from tbl_reply
+	where rno=#{parent}
+
+</select>
+
+원래 id : selectBoard6ReplyMaxOrder
+<select id="replyMaxOrder" resultType="Integer" parameterType="String">
+	SELECT IFNULL(MAX(step),0)+1
+	FROM tbl_reply
+	WHERE bno=#{bno};
+</select>
+
+원래 id : updateBoard6ReplyOrder
+<update id="replyOrder" parameterType="com.board.domain.ReplyVO">
+	UPDATE tbl_reply
+	SET step = step + 1
+	WHERE bno=#{bno} AND step>#{step};
+</update> -->
+</mapper>

@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.board.mappers.board">
+
+	<!-- 게시물 목록 -->
+	<select id="list" resultType="com.board.domain.BoardVO">
+		 select
+		  	bno, title, content, writer, regDate, viewCnt, modDate, delDate, delYN
+		 from board.tbl_board
+	</select>
+	
+	<!-- 게시물 작성 -->
+	<insert id="write" parameterType="com.board.domain.BoardVO" useGeneratedKeys="true" keyProperty="bno">
+ 		<selectKey keyProperty="bno" resultType="int" order = "BEFORE">
+ 			select * from (select max(bno)+1 from board.tbl_board) next
+ 		</selectKey>
+ 		insert into
+  			board.tbl_board(title, content, writer)
+   				values(#{title}, #{content}, #{writer})
+	</insert>
+	
+	<!-- 첨부파일 등록 -->
+	<insert id="insertFile" parameterType="hashMap">
+<!-- 		<selectKey keyProperty="bno", resultType="int" order="BEFORE">
+		
+		</selectKey> -->
+		insert into board.MP_FILE(
+			bno,
+			org_file_name,
+			stored_file_name,
+			file_size
+		)values(
+			#{bno},
+			#{org_file_name},
+			#{stored_file_name},
+			#{file_size}
+		)
+	</insert>
+	
+	<!-- 첨부파일 조회 -->
+	<select id="selectFileList" parameterType="int" resultType="hashMap">
+		select
+			file_no, org_file_name, round(file_size/1024, 1) AS FILE_SIZE
+		from
+			board.mp_file
+		where bno=#{bno}
+		  	and del_gb = 'N'
+		order by file_no ASC
+	</select>
+	
+	<!-- 첨부파일 다운로드 -->
+	<select id="selectFileInfo" parameterType="hashMap" resultType="hashMap">
+		select
+			stored_file_name,
+			org_file_name
+		from
+			board.mp_file
+		where
+			file_no = #{file_no}
+	</select>
+	
+<!-- 첨부파일 수정 --> 
+	<update id="modifyFile" parameterType="hashMap">
+		UPDATE 
+			board.mp_file 
+		SET 
+			del_gb = 'Y' 
+		WHERE bno = #{bno};
+	</update>
+	
+	<!-- 게시물 조회 -->
+	<select id="view" parameterType="int" resultType="com.board.domain.BoardVO">
+		select
+			bno, title, content, writer, regDate, viewCnt, modDate, delDate, delYN
+		from
+			board.tbl_board
+		where
+			bno = #{bno}
+	</select>
+	
+	<!-- 게시판 조회수 -->
+	<update id="viewCnt" parameterType="int">
+		update board.tbl_board
+			set
+				viewCnt = viewCnt+1
+			where
+				bno = #{bno}
+	</update>
+	
+	
+	<!-- 게시물 수정 -->
+	<update id="modify" parameterType="com.board.domain.BoardVO" >
+ 		update board.tbl_board
+  			set
+   				title = #{title},
+   				content = #{content},
+   				writer = #{writer},
+   				modDate = now()
+ 			where bno = #{bno}
+ 	</update>
+ 	
+ 	<!-- 게시물 삭제 -->
+ 	<!-- 
+ 	<delete id="delete" parameterType="int">
+ 		delete
+  		from board.tbl_board
+ 		where bno = #{bno}
+	</delete>
+	 -->
+	 
+	<!-- 게시물 삭제(delete -> update) -->
+ 	<update id="delete" parameterType="int">
+ 		update board.tbl_board
+			set
+				delYN = 'Y',
+				delDate = now()
+			where
+				bno = #{bno}
+	</update>
+	
+	<!-- 게시물 삭제 여부 -->
+	<select id="delYN" resultType="string">
+		select delYN from board.tbl_board where bno = #{bno}
+	</select>
+	
+	<!-- 게시물 총 갯수 -->
+	<select id="count" resultType="int">
+ 		select count(bno) from board.tbl_board
+	</select>
+
+	
+	<!-- 게시물 목록 + 페이징 -->
+	<select id="listPage" parameterType="hashMap" resultType="com.board.domain.BoardVO">
+ 		select
+  			bno, title, writer, regDate, viewCnt, modDate, delDate, delYN
+ 		from board.tbl_board
+ 		order by bno desc
+  			limit #{displayPost}, #{postNum}
+	</select>
+	
+	<!-- 게시물 목록 + 페이징 + 검색 -->
+	<select id="listPageSearch" parameterType="hashMap" resultType="com.board.domain.BoardVO">
+		 SELECT
+		  	bno, title, writer, regDate, viewCnt, modDate, delDate, delYN
+		 FROM board.tbl_board
+		 
+		 <if test='searchType.equals("title")'>
+		  	WHERE title LIKE concat('%', #{keyword}, '%')
+		 </if>
+		 
+		 <if test='searchType.equals("content")'>
+		 	WHERE content LIKE concat('%', #{keyword}, '%')
+		 </if>
+		 
+		 <if test='searchType.equals("title_content")'>
+		  	WHERE title LIKE concat('%', #{keyword}, '%') 
+		   		or content LIKE concat('%', #{keyword}, '%')
+		 </if>
+		 
+		 <if test='searchType.equals("writer")'>
+		  	WHERE writer LIKE concat('%', #{keyword}, '%')
+		 </if>
+		 
+		 ORDER BY bno desc
+		 	limit #{displayPost}, #{postNum}
+	</select>
+	
+	<!-- 게시물 총 갯수 + 검색 적용 -->
+	<select id="searchCount" parameterType="hashMap" resultType="int">
+		select count(bno) from board.tbl_board
+		
+		<if test='searchType.equals("title")'>
+			WHERE title LIKE concat('%', #{keyword}, '%')
+		</if>
+		 
+		<if test='searchType.equals("content")'>
+			WHERE content LIKE concat('%', #{keyword}, '%')
+		</if>
+		 
+		<if test='searchType.equals("title_content")'>
+			WHERE title LIKE concat('%', #{keyword}, '%') 
+		   		or content LIKE concat('%', #{keyword}, '%')
+		</if>
+		 
+		<if test='searchType.equals("writer")'>
+		  	WHERE writer LIKE concat('%', #{keyword}, '%')
+		</if>
+	</select>
+	
+</mapper>
