@@ -45,29 +45,36 @@ function apiwrite() {
 		<%@ include file="../include/nav.jsp" %>
 	</div>
 	<br />
-	<form action="/board/write" id="mainform" name="writeForm" method="post" enctype="multipart/form-data">
-		<div class="form-group">
-			<label class="col-sm-2 control-label">제목</label>
-			<input class="form-control" type="text" name="title" /><br />
-		</div>
-		<div class="form-group">
-			<label class="col-sm-2 control-label">작성자</label>
-			<input class="form-control" type="text" name="writer" /><br />
-		</div>
-		<div class="form-group">
-			<label class="col-sm-2 control-label">내용</label>
-			<textarea class="form-control" cols="50" rows="5" name="content"></textarea><br />
-		</div>	
-		<br />
-		
-		
-		<!-- 파일 첨부 시작 -->
-		<hr />
-		<h4>파일 첨부</h4>
-		파일 : <input class="form-control" type="file" name="file" multiple="multiple"> <br />
-		<hr /><br />
-		<button class="update_btn btn btn-primary" onclick="apiwrite()">작성</button>
-	</form>
+	<c:if test="${msg != 'login_error'}">
+		<form action="/board/write" id="mainform" name="writeForm" method="post" enctype="multipart/form-data">
+			<div class="form-group">
+				<label class="col-sm-2 control-label">제목</label>
+				<input class="form-control" type="text" name="title" /><br />
+			</div>
+			<div class="form-group">
+				<label class="col-sm-2 control-label">작성자</label>
+				<input class="form-control" type="text" name="writer" value="${member.userName}" readonly="readonly" /><br />
+			</div>
+			<div class="form-group">
+				<label class="col-sm-2 control-label">내용</label>
+				<textarea class="form-control" cols="50" rows="5" name="content" ></textarea><br />
+			</div>	
+			<br />
+			
+			
+			<!-- 파일 첨부 시작 -->
+			<hr />
+			<h4>파일 첨부</h4>
+			파일 : <input class="form-control" type="file" name="file" multiple="multiple"> <br />
+			<hr /><br />
+			<button class="update_btn btn btn-primary" onclick="apiwrite()">작성</button>
+		</form>
+	</c:if>
+	
+	<c:if test="${msg == 'login_error'}">
+		<p>로그인이 필요합니다.</p>
+		<p><a href="/">홈으로</a></p>
+	</c:if>
 </div>	
 
 	

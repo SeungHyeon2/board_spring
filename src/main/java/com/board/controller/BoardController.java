@@ -2,43 +2,35 @@ package com.board.controller;
 
 import java.io.File;
 import java.net.URLEncoder;
-import java.security.cert.Extension;
 import java.util.List;
 import java.util.Map;
 
 import javax.annotation.Resource;
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import com.board.config.AsyncConfig;
 import com.board.domain.BoardVO;
-
 import com.board.domain.Page;
 import com.board.domain.ReplyVO;
 import com.board.service.AsyncTaskEtc;
 import com.board.service.AsyncTaskSample;
 import com.board.service.BoardService;
-
 import com.board.service.ReplyService;
-import com.board.service.SecretService;
 
-import lombok.AllArgsConstructor;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @Controller
-@AllArgsConstructor
+//@AllArgsConstructor
 @RequestMapping("/board/*")
 public class BoardController {
     private final Logger logger = LoggerFactory.getLogger(getClass());
@@ -63,9 +55,6 @@ public class BoardController {
 	@Resource(name = "asyncConfig")
 	private AsyncConfig asyncConfig;
 	
-	// 비밀관련 서비스
-	@Inject
-	private SecretService secretService;
 	
 	
 //	@Inject
@@ -96,8 +85,14 @@ public class BoardController {
 	
 	// 게시물 작성(GET)
 	@RequestMapping(value = "/write", method = RequestMethod.GET)
-	public void getWrite() throws Exception{
+	public void getWrite(HttpSession session, Model model) throws Exception{
+		logger.info("get write");
 		
+		Object loginInfo = session.getAttribute("member");
+		
+		if(loginInfo == null) {
+			model.addAttribute("msg", "login_error");
+		}
 	}
 	
 	// 게시물 작성(POST)
@@ -232,38 +227,5 @@ public class BoardController {
 		model.addAttribute("select", num);
 	}
 	
-	/**
-	 * 토큰 정보를 가져와서 페이지에서 보여준다. 
-	 * @param request HttpServletRequest 객 
-	 * @param model Model 객체
-	 * @return 화면 페이지 
-	 */
-	@RequestMapping(value="/main", method=RequestMethod.GET)
-	public String getBoardMain(HttpServletRequest request, Model model) {
-		//세션에서 값을 가져온다.
-		String loginId = (String)request.getSession().getAttribute("loginId");
-		String tokenStr = (String)request.getSession().getAttribute("tokenStr");
-		
-		if(tokenStr != null && loginId != null) {
-			String tokenValidMsg = secretService.validToken(tokenStr, loginId);
-			
-			// 토큰 검증을 마친 경우에만 토큰 정보를 출력
-			if(tokenValidMsg.equals("Pass")) {
-				Map<String, Object> tokenPayload = secretService.getTokenPayload(tokenStr);
-				
-				model.addAttribute("tokenSub", tokenPayload.get("sub"));
-				model.addAttribute("tokenAud", tokenPayload.get("aud"));
-				model.addAttribute("tokenJti", tokenPayload.get("jti"));
-				model.addAttribute("tokenIss", tokenPayload.get("iss"));
-			}
-			
-			model.addAttribute("tokenMsg", tokenValidMsg);
-			model.addAttribute("loginId", loginId);
-			model.addAttribute("tokenValue", tokenStr);
-		}else {
-			model.addAttribute("loginId", "no-login");
-		}
-		
-		return "/board/main";
-	}
+
 }

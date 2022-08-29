@@ -1,5 +1,4 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-<%@ page session="false" %>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <html>
 <head>
@@ -8,6 +7,9 @@
 	
 	<!-- JQuery -->
 	<script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
+	
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap-theme.min.css">
 	
 </head>
 
@@ -27,11 +29,19 @@ function apitest() {
 	});
 }
 
+
+$("#login").click(function(){
+	if($.trim($("#userId").val())=='' || $.trim($("#userPass").val())==''){
+		alert("ID를 입력해주세요.");
+    	return false;
+	} 
+	$("#next_form").submit();
+});
 </script>
 
 <body>
-
-	<p>게시판</p>
+	<div class="container">
+	<h3>게시판</h3>
 	
 	<p>
 	<a href="/board/listPageSearch?num=1">게시물 목록</a><br />
@@ -39,9 +49,38 @@ function apitest() {
 	
 	<a href="#" onclick="apitest()">api 호출</a><br />
 	
-	<a href="/userauth/login">로그인</a>
 	</p>
+	<br />
+	<c:if test="${member == null}">
+		<div class="container">
+			<h3>로그인</h3>
+			<form role="form" method="post" autocomplete="off" action="/member/login">
+				<div class = "form-group">
+					<label for="userId" class="col-sm-2 control-label">아이디</label>
+					<input type="text" id="userId" name="userId" class="form-control" />
+				</div>
+				<div class = "form-group">
+					<label for="userPass" class="col-sm-2 control-label">비밀번호</label>
+					<input type="password" id="userPass" name="userPass" class="form-control" />
+				</div>
+				<div><button type="submit" id="login" class="update_btn btn btn-primary">로그인</button></div>
+		 		<div><a href="/member/register">회원가입</a></div>
+			</form>
+			</div>
+	</c:if>
 	
+	<c:if test="${msg == false}">
+		<p style="color:#f00;">로그인에 실패했습니다. 아이디 또는 패스워드를 다시 입력해주십시오.</p>
+	</c:if>
 	
+	<c:if test="${member != null}">
+		<p>${member.userName}님 환영합니다.</p>
+		<br />
+		
+		<a href="member/modify">회원정보 수정</a>,
+		<a href="member/withdrawal">회원탈퇴</a>,
+		<a href="member/logout">로그아웃</a>
+	</c:if>
+	</div>
 </body>
 </html>

@@ -26,5 +26,8 @@
  
  	<li>
   		<a href="/board/write">글 작성</a> 
+ 	</li>
+ 	<li>
+  		<a href="/">시작 화면으로</a> 
  	</li> 
 </ul>
