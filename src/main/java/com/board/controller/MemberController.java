@@ -58,6 +58,12 @@ public class MemberController {
 		 
 		MemberVO login = service.login(vo);
 		
+		if(service.idCheck(vo.getUserId()) == null) {
+			session.setAttribute("member", null);
+			rttr.addFlashAttribute("msg", false);
+			return "redirect:/";
+		}
+		
 		boolean passMatch = passEncoder.matches(vo.getUserPass(), login.getUserPass());
 		 
 		if(login != null && passMatch) {
@@ -65,7 +71,9 @@ public class MemberController {
 		}else {
 			session.setAttribute("member", null);
 			rttr.addFlashAttribute("msg", false);
+			return "redirect:/";
 		}
+		
 		
 		/*
 		 * if(login == null) { session.setAttribute("member", null);
@@ -121,13 +129,18 @@ public class MemberController {
 		
 		MemberVO member = (MemberVO)session.getAttribute("member");
 		
-		
+		// 로그인된 member의 password를 oldPass에 저장
 		String oldPass = member.getUserPass();
-		String newPass = vo.getUserPass();
-		String newPassCheck = vo.getUserPass();
 		
+		// input에서 넘어온 password를 newPass에 저장
+		String newPass = vo.getUserPass();
+		
+		//String newPass = passEncoder.encode(vo.getUserPass());
+		
+		// 로그인된 member의 값(인코딩 된)과 input에서 넘어온 password를 비교
 		boolean passMatch = passEncoder.matches(newPass, oldPass);
 		
+		// 일치하지 않으면 현재 페이지로 리다이렉트
 		if(!(passMatch)) {
 			rttr.addFlashAttribute("msg", false);
 			return "redirect:/member/withdrawal";
@@ -140,7 +153,10 @@ public class MemberController {
 		
 		service.withdrawal(vo);
 		
-		return "redirect:/board/listPageSearch?num=1";
+		session.invalidate();
+		
+		return "redirect:/";
+		//return "redirect:/board/listPageSearch?num=1";
 	}
 	
 	// 아이디 중복 체크

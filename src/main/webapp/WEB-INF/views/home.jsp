@@ -30,13 +30,7 @@ function apitest() {
 }
 
 
-$("#login").click(function(){
-	if($.trim($("#userId").val())=='' || $.trim($("#userPass").val())==''){
-		alert("ID를 입력해주세요.");
-    	return false;
-	} 
-	$("#next_form").submit();
-});
+
 </script>
 
 <body>
@@ -54,7 +48,7 @@ $("#login").click(function(){
 	<c:if test="${member == null}">
 		<div class="container">
 			<h3>로그인</h3>
-			<form role="form" method="post" autocomplete="off" action="/member/login">
+			<form role="form" method="post" autocomplete="off" action="/member/login" onsubmit='return checkSubmitValue(this)'>
 				<div class = "form-group">
 					<label for="userId" class="col-sm-2 control-label">아이디</label>
 					<input type="text" id="userId" name="userId" class="form-control" />
@@ -63,7 +57,7 @@ $("#login").click(function(){
 					<label for="userPass" class="col-sm-2 control-label">비밀번호</label>
 					<input type="password" id="userPass" name="userPass" class="form-control" />
 				</div>
-				<div><button type="submit" id="login" class="update_btn btn btn-primary">로그인</button></div>
+				<div><button type="submit" id="btn" class="update_btn btn btn-primary">로그인</button></div>
 		 		<div><a href="/member/register">회원가입</a></div>
 			</form>
 			</div>
@@ -82,5 +76,18 @@ $("#login").click(function(){
 		<a href="member/logout">로그아웃</a>
 	</c:if>
 	</div>
+	
+<script>
+function checkSubmitValue(frm) {
+	var e = frm.elements;
+	for ( var i = 0; i < e.length; i++ ) {
+		if ( e[i].tagName == 'INPUT'  && e[i].value == '' ) {
+			alert('아이디 혹은 비밀번호를 확인해주세요');
+			return false;
+		}
+	}
+	return true;
+}
+</script>
 </body>
 </html>

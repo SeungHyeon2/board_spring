@@ -9,13 +9,13 @@
 <body>
 <div class="container">
 <h3>회원정보 수정</h3>
-<form role="form" method="post" autocomplete="off">
+<form role="form" method="post" autocomplete="off" onsubmit='return checkSubmitValue(this)'>
 	<div class = "form-group" >
-	  <label for="userName" class="col-sm-2 control-label">닉네임</label>
+	  <label for="userName" class="col-sm-2 control-label">사용자명</label>
 	  <input type="text" id="userName" name="userName" value="${member.userName}" class="form-control"/>
 	</div>
 	<div class = "form-group">
-		<label for="userPass" class="col-sm-2 control-label">새로운 패스워드</label>
+		<label for="userPass" class="col-sm-2 control-label">새 패스워드</label>
 	  	<input type="password" id="userPass" name="userPass" class="form-control"/>
 	</div>
 	 
@@ -27,5 +27,18 @@
 	</div>
 </form>
 </div>
+
+<script>
+function checkSubmitValue(frm) {
+	var e = frm.elements;
+	for ( var i = 0; i < e.length; i++ ) {
+		if ( e[i].tagName == 'INPUT'  && e[i].value == '' ) {
+			alert('아이디 혹은 비밀번호를 확인해주세요');
+			return false;
+		}
+	}
+	return true;
+}
+</script>
 </body>
 </html>
