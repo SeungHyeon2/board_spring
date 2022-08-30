@@ -57,5 +57,6 @@ public class MemberDAOImpl implements MemberDAO {
 		// TODO Auto-generated method stub
 		return sql.selectOne(namespace + ".idCheck", userId);
 	}
+	
 
 }

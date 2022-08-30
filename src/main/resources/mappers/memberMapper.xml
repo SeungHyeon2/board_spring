@@ -43,7 +43,6 @@
 	<delete id="withdrawal">
 	delete from board.tbl_member
 	where userId = #{userId}
-		and userPass = #{userPass}
 	</delete>
 	
 	<!-- 아이디 확인 -->

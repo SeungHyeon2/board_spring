@@ -46,7 +46,9 @@ function apiwrite() {
 	</div>
 	<br />
 	<c:if test="${msg != 'login_error'}">
-		<form action="/board/write" id="mainform" name="writeForm" method="post" enctype="multipart/form-data">
+	
+		<!-- <form id="mainform" name="writeForm" method="post" enctype="multipart/form-data"> -->
+		<form method="post" enctype="multipart/form-data">
 			<div class="form-group">
 				<label class="col-sm-2 control-label">제목</label>
 				<input class="form-control" type="text" name="title" /><br />
