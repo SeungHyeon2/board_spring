@@ -16,7 +16,7 @@ import com.board.domain.BoardVO;
 
 import lombok.extern.log4j.Log4j;
 
-@ExtendWith(SpringExtension.class)
+//@ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations= {
 		"file:src/main/webapp/WEB-INF/spring/root-context.xml",
 		"file:src/main/webapp/WEB-INF/spring/appServlet/servlet-context.xml",
@@ -36,7 +36,7 @@ class BoardServiceTest {
 	@Test
 	@Order(1)
 	void viewTest() throws Exception{
-		
+		log.info("logTest");
 	}
 //	
 //	@Test

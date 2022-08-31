@@ -14,7 +14,7 @@ import com.board.domain.ReplyVO;
 class ReplyServiceTest {
 	
 	@InjectMocks
-	ReplyService replyService;
+	ReplyServiceImpl replyServiceImpl;
 	
 	@Mock
 	private ReplyDAOImpl dao;
@@ -22,7 +22,7 @@ class ReplyServiceTest {
 	@Test
 	public void createTest() {
 		Assertions.assertThrows(RuntimeException.class, ()->{
-			replyService.write(null);
+			replyServiceImpl.write(null);
 		});
 		
 	}
